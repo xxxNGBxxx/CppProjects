@@ -1,0 +1,2 @@
+My implementation SQLite database viewer.
+Program can create new database, open existing DB, supports SQL queries. 
