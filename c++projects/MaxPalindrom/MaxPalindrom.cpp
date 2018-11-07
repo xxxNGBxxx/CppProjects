@@ -26,7 +26,7 @@ MaxPalindrom::MaxPalindrom(){
                 mult = i*j;
                 smult = toString(mult);
                 int counter = 0;
-                for (int k = 0; k < smult.length()/2; k++){
+                for (size_t k = 0; k < smult.length()/2; k++){
                     if(smult[k] == smult[smult.length()-1-k]){
                         counter++;
                     }

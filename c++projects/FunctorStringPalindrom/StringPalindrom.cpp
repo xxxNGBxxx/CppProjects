@@ -18,11 +18,11 @@
     bool::Pal::operator()(){
         int counter = 0;
 
-        for(unsigned long i = 0; i < CopyStr.length(); i++){
+        for(size_t i = 0; i < CopyStr.length(); i++){
              CopyStr[i] = tolower(CopyStr[i]);
         }
 
-        for(unsigned long i = 0; i < CopyStr.length()/2; i++){
+        for(size_t i = 0; i < CopyStr.length()/2; i++){
             if(CopyStr[i] == CopyStr[CopyStr.length()-1-i]
                && CopyStr[i] > 64 && CopyStr[i] < 123){
                  counter++;
