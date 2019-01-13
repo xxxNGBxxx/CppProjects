@@ -1,15 +1,14 @@
 #include "jsonparser.h"
 #include <QDebug>
 
-JsonParser::JsonParser(){
-
-}
+JsonParser::JsonParser(QObject* pobj): QObject (pobj){}
 
 bool JsonParser::readJsonFile(std::string file_path, QVariantList& result){
     // open file
     QFile file_obj(QString::fromStdString(file_path));
         if (!file_obj.open(QIODevice::ReadOnly)) {
             qDebug()<< "cant open file";
+            qDebug()<<qApp->applicationDirPath();
             return false;
         }
 
@@ -42,16 +41,17 @@ bool JsonParser::readJsonFile(std::string file_path, QVariantList& result){
     }
 
     // change data
-
-    foreach(const QJsonValue &value, json_array){
-        QJsonObject json_obj = value.toObject();
-        if(json_obj[key_search] == (m_index)){
-            json_obj[key_change] = state;
-            if(m_index < json_array.size()){
-                json_array[m_index] = json_obj;
-            }
-            else{
-                qDebug()<< "index out of array";
+    if(m_index >= 0){
+        foreach(const QJsonValue &value, json_array){
+            QJsonObject json_obj = value.toObject();
+            if(json_obj[key_search] == (m_index)){
+                json_obj[key_change] = state;
+                if(m_index < json_array.size()){
+                    json_array[m_index] = json_obj;
+                }
+                else{
+                    qDebug()<< "index out of array";
+                }
             }
         }
     }
@@ -65,7 +65,6 @@ bool JsonParser::writeJsonFile(QVariantList list, std::string file_path){
     QJsonArray json_array = QJsonArray::fromVariantList(list);
     QJsonDocument json_doc(json_array);
     QString json_string = json_doc.toJson(QJsonDocument::Indented);
-    parse_string = "var jsonModel = " + json_string;
 
     QFile save_file(QString::fromStdString(file_path));
         if (!save_file.open(QIODevice::WriteOnly)) {
@@ -79,6 +78,12 @@ bool JsonParser::writeJsonFile(QVariantList list, std::string file_path){
 }
 
 bool JsonParser::writeJsFile(std::string file_path){
+    QJsonArray json_array = QJsonArray::fromVariantList(list);
+    QJsonDocument json_doc(json_array);
+    QString json_string = json_doc.toJson(QJsonDocument::Indented);
+
+    parse_string = "var jsonModel = " + json_string;
+
     QFile save_file(QString::fromStdString(file_path));
         if (!save_file.open(QIODevice::WriteOnly)) {
             qDebug()<< "cant write file";
@@ -91,9 +96,11 @@ bool JsonParser::writeJsFile(std::string file_path){
     return true;
 }
 
-void JsonParser::setId(int indx,bool stt){
+void JsonParser::setId(int indx){
     m_index = indx;
-    state = stt;
+    readJsonFile(pathToJson, list);
+    writeJsonFile(list,pathToJson);
+    writeJsFile(pathToJs);
 }
 
 void JsonParser::setSearchKey(QString key){
@@ -103,3 +110,9 @@ void JsonParser::setSearchKey(QString key){
 void JsonParser::setChangeKey(QString key){
     key_change = key;
 }
+
+void JsonParser::openSync(){
+    readJsonFile(pathToJson, list);
+    writeJsFile(pathToJs);
+}
+
